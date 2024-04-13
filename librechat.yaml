@@ -139,7 +139,7 @@ endpoints:
 
     - name: "cohere"
       apiKey: "${COHERE_API_KEY}"
-      baseURL: "https://api.cohere.ai/v1/chat"
+      baseURL: "https://api.cohere.ai/v1"
       models:
         default: ["command-r","command-r-plus","command-light","command-light-nightly","command","command-nightly"]
         fetch: false
