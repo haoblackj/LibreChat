@@ -244,16 +244,17 @@ export const configSchema = z.object({
 export type TCustomConfig = z.infer<typeof configSchema>;
 
 export enum KnownEndpoints {
-  mistral = 'mistral',
-  shuttleai = 'shuttleai',
-  openrouter = 'openrouter',
-  groq = 'groq',
   anyscale = 'anyscale',
-  fireworks = 'fireworks',
-  ollama = 'ollama',
-  perplexity = 'perplexity',
-  'together.ai' = 'together.ai',
+  apipie = 'apipie',
   cohere = 'cohere',
+  fireworks = 'fireworks',
+  groq = 'groq',
+  mistral = 'mistral',
+  ollama = 'ollama',
+  openrouter = 'openrouter',
+  perplexity = 'perplexity',
+  shuttleai = 'shuttleai',
+  'together.ai' = 'together.ai',
 }
 
 export enum FetchTokenConfig {
@@ -397,6 +398,7 @@ export const supportsBalanceCheck = {
 
 export const visionModels = [
   'gpt-4-vision',
+  'llava',
   'llava-13b',
   'gemini-pro-vision',
   'claude-3',
@@ -610,7 +612,7 @@ export enum Constants {
   /**
    * Key for the app's version.
    */
-  VERSION = 'v0.7.0',
+  VERSION = 'v0.7.1',
   /**
    * Key for the Custom Config's version (librechat.yaml).
    */
