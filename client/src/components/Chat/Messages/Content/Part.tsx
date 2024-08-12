@@ -4,11 +4,9 @@ import {
   imageGenTools,
   isImageVisionTool,
 } from 'librechat-data-provider';
-import { useMemo } from 'react';
 import type { TMessageContentParts, TMessage } from 'librechat-data-provider';
 import type { TDisplayProps } from '~/common';
 import { ErrorMessage } from './MessageContent';
-import { useChatContext } from '~/Providers';
 import RetrievalCall from './RetrievalCall';
 import CodeAnalyze from './CodeAnalyze';
 import Container from './Container';
@@ -22,30 +20,16 @@ import { cn } from '~/utils';
 
 // Display Message Component
 const DisplayMessage = ({ text, isCreatedByUser = false, message, showCursor }: TDisplayProps) => {
-  const { isSubmitting, latestMessage } = useChatContext();
-  const showCursorState = useMemo(
-    () => showCursor === true && isSubmitting,
-    [showCursor, isSubmitting],
-  );
-  const isLatestMessage = useMemo(
-    () => message.messageId === latestMessage?.messageId,
-    [message.messageId, latestMessage?.messageId],
-  );
   return (
     <div
       className={cn(
-        showCursorState && !!text.length ? 'result-streaming' : '',
-        'markdown prose message-content dark:prose-invert light w-full break-words',
+        showCursor && !!text?.length ? 'result-streaming' : '',
+        'markdown prose dark:prose-invert light w-full break-words',
         isCreatedByUser ? 'whitespace-pre-wrap dark:text-gray-20' : 'dark:text-gray-70',
       )}
     >
       {!isCreatedByUser ? (
-        <Markdown
-          content={text}
-          isEdited={message.isEdited}
-          showCursor={showCursorState}
-          isLatestMessage={isLatestMessage}
-        />
+        <Markdown content={text} message={message} showCursor={showCursor} />
       ) : (
         <>{text}</>
       )}
@@ -74,12 +58,14 @@ export default function Part({
     // Access the value property
     return (
       <Container message={message}>
-        <DisplayMessage
-          text={part[ContentTypes.TEXT].value}
-          isCreatedByUser={message.isCreatedByUser}
-          message={message}
-          showCursor={showCursor}
-        />
+        <div className="markdown prose dark:prose-invert light dark:text-gray-70 my-1 w-full break-words">
+          <DisplayMessage
+            text={part[ContentTypes.TEXT].value}
+            isCreatedByUser={message.isCreatedByUser}
+            message={message}
+            showCursor={showCursor}
+          />
+        </div>
       </Container>
     );
   } else if (
@@ -121,12 +107,14 @@ export default function Part({
       if (isSubmitting && showCursor) {
         return (
           <Container message={message}>
-            <DisplayMessage
-              text={''}
-              isCreatedByUser={message.isCreatedByUser}
-              message={message}
-              showCursor={showCursor}
-            />
+            <div className="markdown prose dark:prose-invert light dark:text-gray-70 my-1 w-full break-words">
+              <DisplayMessage
+                text={''}
+                isCreatedByUser={message.isCreatedByUser}
+                message={message}
+                showCursor={showCursor}
+              />
+            </div>
           </Container>
         );
       }

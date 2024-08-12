@@ -1,6 +1,12 @@
 import connectDb from '@librechat/backend/lib/db/connectDb';
-import { deleteMessages, deleteConvos, User, Session, Balance } from '@librechat/backend/models';
-import { Transaction } from '@librechat/backend/models/Transaction';
+import {
+  deleteMessages,
+  deleteConvos,
+  User,
+  Session,
+  Balance,
+  Transaction,
+} from '@librechat/backend/models';
 type TUser = { email: string; password: string };
 
 export default async function cleanupUser(user: TUser) {

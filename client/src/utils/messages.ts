@@ -43,10 +43,3 @@ export const getTextKey = (message?: TMessage | null, convoId?: string | null) =
     Constants.COMMON_DIVIDER
   }${message.conversationId ?? convoId}`;
 };
-
-export const scrollToEnd = () => {
-  const messagesEndElement = document.getElementById('messages-end');
-  if (messagesEndElement) {
-    messagesEndElement.scrollIntoView({ behavior: 'instant' });
-  }
-};

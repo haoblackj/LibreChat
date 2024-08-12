@@ -27,7 +27,7 @@ export default function Mention({
   const localize = useLocalize();
   const assistantMap = useAssistantsMapContext();
   const { options, presets, modelSpecs, modelsConfig, endpointsConfig, assistantListMap } =
-    useMentions({ assistantMap: assistantMap || {}, includeAssistants });
+    useMentions({ assistantMap, includeAssistants });
   const { onSelectMention } = useSelectMention({
     presets,
     modelSpecs,
@@ -103,18 +103,15 @@ export default function Mention({
     };
   }, []);
 
-  const type = commandChar !== '@' ? 'add-convo' : 'mention';
   useEffect(() => {
-    const currentActiveItem = document.getElementById(`${type}-item-${activeIndex}`);
+    const currentActiveItem = document.getElementById(`mention-item-${activeIndex}`);
     currentActiveItem?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
-  }, [type, activeIndex]);
+  }, [activeIndex]);
 
   return (
     <div className="absolute bottom-16 z-10 w-full space-y-2">
       <div className="popover border-token-border-light rounded-2xl border bg-white p-2 shadow-lg dark:bg-gray-700">
         <input
-          // The user expects focus to transition to the input field when the popover is opened
-          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           ref={inputRef}
           placeholder={localize(placeholder)}
@@ -158,12 +155,9 @@ export default function Mention({
           <div className="max-h-40 overflow-y-auto">
             {(matches as MentionOption[]).map((mention, index) => (
               <MentionItem
-                type={type}
                 index={index}
                 key={`${mention.value}-${index}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={() => {
                   if (timeoutRef.current) {
                     clearTimeout(timeoutRef.current);
                   }

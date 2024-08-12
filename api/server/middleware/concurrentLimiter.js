@@ -1,7 +1,5 @@
-const { Time } = require('librechat-data-provider');
-const clearPendingReq = require('~/cache/clearPendingReq');
-const { logViolation, getLogStores } = require('~/cache');
-const { isEnabled } = require('~/server/utils');
+const clearPendingReq = require('../../cache/clearPendingReq');
+const { logViolation, getLogStores } = require('../../cache');
 const denyRequest = require('./denyRequest');
 
 const {
@@ -9,6 +7,7 @@ const {
   CONCURRENT_MESSAGE_MAX = 1,
   CONCURRENT_VIOLATION_SCORE: score,
 } = process.env ?? {};
+const ttl = 1000 * 60 * 1;
 
 /**
  * Middleware to limit concurrent requests for a user.
@@ -39,7 +38,7 @@ const concurrentLimiter = async (req, res, next) => {
   const limit = Math.max(CONCURRENT_MESSAGE_MAX, 1);
   const type = 'concurrent';
 
-  const key = `${isEnabled(USE_REDIS) ? namespace : ''}:${userId}`;
+  const key = `${USE_REDIS ? namespace : ''}:${userId}`;
   const pendingRequests = +((await cache.get(key)) ?? 0);
 
   if (pendingRequests >= limit) {
@@ -52,7 +51,7 @@ const concurrentLimiter = async (req, res, next) => {
     await logViolation(req, res, type, errorMessage, score);
     return await denyRequest(req, res, errorMessage);
   } else {
-    await cache.set(key, pendingRequests + 1, Time.ONE_MINUTE);
+    await cache.set(key, pendingRequests + 1, ttl);
   }
 
   // Ensure the requests are removed from the store once the request is done

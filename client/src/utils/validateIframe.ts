@@ -1,4 +1,4 @@
-export default function validateIframe(content: string): boolean {
+export default function validateIframe(content: string): string | boolean | null {
   const hasValidIframe =
     content.includes('<iframe role="presentation" style="') &&
     content.includes('src="https://www.bing.com/images/create');
@@ -38,7 +38,5 @@ export default function validateIframe(content: string): boolean {
   const role = iframe.getAttribute('role');
   const src = iframe.getAttribute('src');
 
-  return (
-    role === 'presentation' && src != null && src.startsWith('https://www.bing.com/images/create')
-  );
+  return role === 'presentation' && src && src.startsWith('https://www.bing.com/images/create');
 }

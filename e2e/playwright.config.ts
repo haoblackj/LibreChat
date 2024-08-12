@@ -63,7 +63,6 @@ export default defineConfig({
     env: {
       ...process.env,
       NODE_ENV: 'CI',
-      EMAIL_HOST: '',
       SEARCH: 'false',
       SESSION_EXPIRY: '60000',
       ALLOW_REGISTRATION: 'true',

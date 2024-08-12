@@ -34,11 +34,7 @@ export default function NavToggle({
       onMouseLeave={() => setIsHovering(false)}
     >
       <TooltipTrigger asChild>
-        <button
-          onClick={onToggle}
-          id={`toggle-${side}-nav`}
-          aria-label={`toggle-${side === 'left' ? 'chat-history' : 'controls'}-nav`}
-        >
+        <button onClick={onToggle}>
           <span className="" data-state="closed">
             <div
               className="flex h-[72px] w-8 items-center justify-center"

@@ -58,7 +58,7 @@ const SidePanel = ({
 
   const defaultActive = useMemo(() => {
     const activePanel = localStorage.getItem('side:active-panel');
-    return typeof activePanel === 'string' ? activePanel : undefined;
+    return activePanel ? activePanel : undefined;
   }, []);
 
   const assistants = useMemo(() => endpointsConfig?.[endpoint ?? ''], [endpoint, endpointsConfig]);
@@ -67,8 +67,8 @@ const SidePanel = ({
     [endpointsConfig, endpoint],
   );
   const keyProvided = useMemo(
-    () => (userProvidesKey ? !!keyExpiry.expiresAt : true),
-    [keyExpiry.expiresAt, userProvidesKey],
+    () => (userProvidesKey ? !!keyExpiry?.expiresAt : true),
+    [keyExpiry?.expiresAt, userProvidesKey],
   );
 
   const hidePanel = useCallback(() => {
@@ -80,13 +80,7 @@ const SidePanel = ({
     panelRef.current?.collapse();
   }, []);
 
-  const Links = useSideNavLinks({
-    hidePanel,
-    assistants,
-    keyProvided,
-    endpoint,
-    interfaceConfig,
-  });
+  const Links = useSideNavLinks({ hidePanel, assistants, keyProvided, endpoint, interfaceConfig });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSaveLayout = useCallback(
@@ -171,9 +165,6 @@ const SidePanel = ({
             <ResizableHandleAlt withHandle className="bg-transparent dark:text-white" />
           )}
           <ResizablePanel
-            tagName="nav"
-            id="controls-nav"
-            aria-label="controls-nav"
             collapsedSize={collapsedSize}
             defaultSize={defaultLayout[1]}
             collapsible={true}
@@ -224,9 +215,8 @@ const SidePanel = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       </TooltipProvider>
-      <button
-        aria-label="Close right side panel"
-        className={`nav-mask ${!isCollapsed ? 'active' : ''}`}
+      <div
+        className={`nav-mask${!isCollapsed ? ' active' : ''}`}
         onClick={() => {
           setIsCollapsed(() => {
             localStorage.setItem('fullPanelCollapse', 'true');

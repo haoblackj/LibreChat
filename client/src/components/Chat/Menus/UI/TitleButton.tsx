@@ -3,10 +3,9 @@ import { Trigger } from '@radix-ui/react-popover';
 export default function TitleButton({ primaryText = '', secondaryText = '' }) {
   return (
     <Trigger asChild>
-      <button
+      <div
         className="group flex cursor-pointer items-center gap-1 rounded-xl px-3 py-2 text-lg font-medium hover:bg-gray-50 radix-state-open:bg-gray-50 dark:hover:bg-gray-700 dark:radix-state-open:bg-gray-700"
-        type="button"
-        aria-label={`Select ${primaryText}`}
+        // type="button"
       >
         <div>
           {primaryText}{' '}
@@ -27,7 +26,7 @@ export default function TitleButton({ primaryText = '', secondaryText = '' }) {
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </div>
     </Trigger>
   );
 }

@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import {
   ArrowRightToLine,
   MessageSquareQuote,
-  Bookmark,
   // Settings2,
 } from 'lucide-react';
 import {
@@ -13,7 +12,6 @@ import {
 } from 'librechat-data-provider';
 import type { TConfig, TInterfaceConfig } from 'librechat-data-provider';
 import type { NavLink } from '~/common';
-import BookmarkPanel from '~/components/SidePanel/Bookmarks/BookmarkPanel';
 import PanelSwitch from '~/components/SidePanel/Builder/PanelSwitch';
 import PromptsAccordion from '~/components/Prompts/PromptsAccordion';
 // import Parameters from '~/components/SidePanel/Parameters/Panel';
@@ -73,14 +71,6 @@ export default function useSideNavLinks({
       icon: AttachmentIcon,
       id: 'files',
       Component: FilesPanel,
-    });
-
-    links.push({
-      title: 'com_sidepanel_conversation_tags',
-      label: '',
-      icon: Bookmark,
-      id: 'bookmarks',
-      Component: BookmarkPanel,
     });
 
     links.push({

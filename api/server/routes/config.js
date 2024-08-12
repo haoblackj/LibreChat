@@ -1,6 +1,5 @@
 const express = require('express');
 const { CacheKeys, defaultSocialLogins } = require('librechat-data-provider');
-const { getLdapConfig } = require('~/server/services/Config/ldap');
 const { getProjectByName } = require('~/models/Project');
 const { isEnabled } = require('~/server/utils');
 const { getLogStores } = require('~/cache');
@@ -34,8 +33,7 @@ router.get('/', async function (req, res) {
 
   const instanceProject = await getProjectByName('instance', '_id');
 
-  const ldap = getLdapConfig();
-
+  const ldapLoginEnabled = !!process.env.LDAP_URL && !!process.env.LDAP_USER_SEARCH_BASE;
   try {
     /** @type {TStartupConfig} */
     const payload = {
@@ -53,9 +51,10 @@ router.get('/', async function (req, res) {
         !!process.env.OPENID_SESSION_SECRET,
       openidLabel: process.env.OPENID_BUTTON_LABEL || 'Continue with OpenID',
       openidImageUrl: process.env.OPENID_IMAGE_URL,
+      ldapLoginEnabled,
       serverDomain: process.env.DOMAIN_SERVER || 'http://localhost:3080',
       emailLoginEnabled,
-      registrationEnabled: !ldap?.enabled && isEnabled(process.env.ALLOW_REGISTRATION),
+      registrationEnabled: !ldapLoginEnabled && isEnabled(process.env.ALLOW_REGISTRATION),
       socialLoginEnabled: isEnabled(process.env.ALLOW_SOCIAL_LOGIN),
       emailEnabled:
         (!!process.env.EMAIL_SERVICE || !!process.env.EMAIL_HOST) &&
@@ -76,10 +75,6 @@ router.get('/', async function (req, res) {
       analyticsGtmId: process.env.ANALYTICS_GTM_ID,
       instanceProjectId: instanceProject._id.toString(),
     };
-
-    if (ldap) {
-      payload.ldap = ldap;
-    }
 
     if (typeof process.env.CUSTOM_FOOTER === 'string') {
       payload.customFooter = process.env.CUSTOM_FOOTER;

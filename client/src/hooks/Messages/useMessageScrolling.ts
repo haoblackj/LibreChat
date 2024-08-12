@@ -1,66 +1,50 @@
 import { useRecoilValue } from 'recoil';
-import { Constants } from 'librechat-data-provider';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useLayoutEffect, useState, useRef, useCallback, useEffect } from 'react';
 import type { TMessage } from 'librechat-data-provider';
-import useScrollToRef from '~/hooks/useScrollToRef';
+import useScrollToRef from '../useScrollToRef';
 import { useChatContext } from '~/Providers';
 import store from '~/store';
-
-const threshold = 0.85;
-const debounceRate = 150;
 
 export default function useMessageScrolling(messagesTree?: TMessage[] | null) {
   const autoScroll = useRecoilValue(store.autoScroll);
 
+  const timeoutIdRef = useRef<NodeJS.Timeout>();
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const { conversation, setAbortScroll, isSubmitting, abortScroll } = useChatContext();
   const { conversationId } = conversation ?? {};
 
-  const timeoutIdRef = useRef<NodeJS.Timeout>();
-
-  const debouncedSetShowScrollButton = useCallback((value: boolean) => {
-    clearTimeout(timeoutIdRef.current);
-    timeoutIdRef.current = setTimeout(() => {
-      setShowScrollButton(value);
-    }, debounceRate);
-  }, []);
-
-  useEffect(() => {
-    if (!messagesEndRef.current || !scrollableRef.current) {
+  const checkIfAtBottom = useCallback(() => {
+    if (!scrollableRef.current) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        debouncedSetShowScrollButton(!entry.isIntersecting);
-      },
-      { root: scrollableRef.current, threshold },
-    );
+    const { scrollTop, scrollHeight, clientHeight } = scrollableRef.current;
+    const diff = Math.abs(scrollHeight - scrollTop);
+    const percent = Math.abs(clientHeight - diff) / clientHeight;
+    const hasScrollbar = scrollHeight > clientHeight && percent >= 0.15;
+    setShowScrollButton(hasScrollbar);
+  }, [scrollableRef]);
 
-    observer.observe(messagesEndRef.current);
+  useLayoutEffect(() => {
+    const scrollableElement = scrollableRef.current;
+    if (!scrollableElement) {
+      return;
+    }
+    const timeoutId = setTimeout(checkIfAtBottom, 650);
 
     return () => {
-      observer.disconnect();
-      clearTimeout(timeoutIdRef.current);
+      clearTimeout(timeoutId);
     };
-  }, [messagesEndRef, scrollableRef, debouncedSetShowScrollButton]);
+  }, [checkIfAtBottom]);
 
   const debouncedHandleScroll = useCallback(() => {
-    if (messagesEndRef.current && scrollableRef.current) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          debouncedSetShowScrollButton(!entry.isIntersecting);
-        },
-        { root: scrollableRef.current, threshold },
-      );
-      observer.observe(messagesEndRef.current);
-      return () => observer.disconnect();
-    }
-  }, [debouncedSetShowScrollButton]);
+    clearTimeout(timeoutIdRef.current);
+    timeoutIdRef.current = setTimeout(checkIfAtBottom, 100);
+  }, [checkIfAtBottom]);
 
-  const scrollCallback = () => debouncedSetShowScrollButton(false);
+  const scrollCallback = () => setShowScrollButton(false);
 
   const { scrollToRef: scrollToBottom, handleSmoothToRef } = useScrollToRef({
     targetRef: messagesEndRef,
@@ -82,13 +66,13 @@ export default function useMessageScrolling(messagesTree?: TMessage[] | null) {
 
     return () => {
       if (abortScroll) {
-        scrollToBottom && scrollToBottom.cancel();
+        scrollToBottom && scrollToBottom?.cancel();
       }
     };
   }, [isSubmitting, messagesTree, scrollToBottom, abortScroll]);
 
   useEffect(() => {
-    if (scrollToBottom && autoScroll && conversationId !== Constants.NEW_CONVO) {
+    if (scrollToBottom && autoScroll && conversationId !== 'new') {
       scrollToBottom();
     }
   }, [autoScroll, conversationId, scrollToBottom]);

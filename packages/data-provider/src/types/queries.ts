@@ -1,7 +1,6 @@
 import type { InfiniteData } from '@tanstack/react-query';
+import type { TMessage, TConversation, TSharedLink } from '../schemas';
 import type * as t from '../types';
-import type { TMessage, TConversation, TSharedLink, TConversationTag } from '../schemas';
-
 export type Conversation = {
   id: string;
   createdAt: number;
@@ -19,7 +18,6 @@ export type ConversationListParams = {
   pageNumber: string; // Add this line
   conversationId?: string;
   isArchived?: boolean;
-  tags?: string[];
 };
 
 // Type for the response from the conversation list API
@@ -70,5 +68,3 @@ export type AllPromptGroupsFilterRequest = {
 };
 
 export type AllPromptGroupsResponse = t.TPromptGroup[];
-
-export type ConversationTagsResponse = TConversationTag[];

@@ -78,8 +78,6 @@ export default function AudioRecorder({
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            id="audio-recorder"
-            aria-label={localize('com_ui_use_micrphone')}
             onClick={isListening ? handleStopRecording : handleStartRecording}
             disabled={disabled}
             className={cn(

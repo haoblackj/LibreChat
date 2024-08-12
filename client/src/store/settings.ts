@@ -22,7 +22,6 @@ const localStorageAtoms = {
   // General settings
   autoScroll: atomWithLocalStorage('autoScroll', false),
   hideSidePanel: atomWithLocalStorage('hideSidePanel', false),
-  fontSize: atomWithLocalStorage('fontSize', 'text-base'),
 
   // Messages settings
   enterToSend: atomWithLocalStorage('enterToSend', true),
@@ -37,11 +36,6 @@ const localStorageAtoms = {
   // Beta features settings
   modularChat: atomWithLocalStorage('modularChat', true),
   LaTeXParsing: atomWithLocalStorage('LaTeXParsing', true),
-
-  // Commands settings
-  atCommand: atomWithLocalStorage('atCommand', true),
-  plusCommand: atomWithLocalStorage('plusCommand', true),
-  slashCommand: atomWithLocalStorage('slashCommand', true),
 
   // Speech settings
   conversationMode: atomWithLocalStorage('conversationMode', false),

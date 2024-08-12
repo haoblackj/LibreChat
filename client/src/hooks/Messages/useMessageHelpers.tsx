@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Constants, isAssistantsEndpoint } from 'librechat-data-provider';
 import type { TMessageProps } from '~/common';
 import { useChatContext, useAssistantsMapContext } from '~/Providers';
@@ -24,7 +24,7 @@ export default function useMessageHelpers(props: TMessageProps) {
 
   const { text, content, children, messageId = null, isCreatedByUser } = message ?? {};
   const edit = messageId === currentEditId;
-  const isLast = children?.length === 0 || children?.length === undefined;
+  const isLast = !children?.length;
 
   useEffect(() => {
     const convoId = conversation?.conversationId;
@@ -44,7 +44,7 @@ export default function useMessageHelpers(props: TMessageProps) {
     const logInfo = {
       textKey,
       'latestText.current': latestText.current,
-      messageId: message.messageId,
+      messageId: message?.messageId,
       convoId,
     };
     if (
@@ -60,7 +60,7 @@ export default function useMessageHelpers(props: TMessageProps) {
   }, [isLast, message, setLatestMessage, conversation?.conversationId]);
 
   const enterEdit = useCallback(
-    (cancel?: boolean) => setCurrentEditId && setCurrentEditId(cancel === true ? -1 : messageId),
+    (cancel?: boolean) => setCurrentEditId && setCurrentEditId(cancel ? -1 : messageId),
     [messageId, setCurrentEditId],
   );
 
@@ -72,19 +72,12 @@ export default function useMessageHelpers(props: TMessageProps) {
     }
   }, [isSubmitting, setAbortScroll]);
 
-  const assistant = useMemo(() => {
-    if (!isAssistantsEndpoint(conversation?.endpoint)) {
-      return undefined;
-    }
-
-    const endpointKey = conversation?.endpoint ?? '';
-    const modelKey = message?.model ?? '';
-
-    return assistantMap?.[endpointKey] ? assistantMap[endpointKey][modelKey] : undefined;
-  }, [conversation?.endpoint, message?.model, assistantMap]);
+  const assistant =
+    isAssistantsEndpoint(conversation?.endpoint) &&
+    assistantMap?.[conversation?.endpoint ?? '']?.[message?.model ?? ''];
 
   const regenerateMessage = () => {
-    if ((isSubmitting && isCreatedByUser === true) || !message) {
+    if ((isSubmitting && isCreatedByUser) || !message) {
       return;
     }
 

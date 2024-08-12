@@ -103,10 +103,6 @@ const conversationPreset = {
   spec: {
     type: String,
   },
-  tags: {
-    type: [String],
-    default: [],
-  },
   tools: { type: [{ type: String }], default: undefined },
   maxContextTokens: {
     type: Number,

@@ -15,13 +15,9 @@ const EngineTTSDropdown: React.FC<EngineTTSDropdownProps> = ({ external }) => {
   const endpointOptions = external
     ? [
       { value: 'browser', display: localize('com_nav_browser') },
-      { value: 'edge', display: localize('com_nav_edge') },
       { value: 'external', display: localize('com_nav_external') },
     ]
-    : [
-      { value: 'browser', display: localize('com_nav_browser') },
-      { value: 'edge', display: localize('com_nav_edge') },
-    ];
+    : [{ value: 'browser', display: localize('com_nav_browser') }];
 
   const handleSelect = (value: string) => {
     setEngineTTS(value);

@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { Switch } from '~/components/ui';
 import { useLocalize } from '~/hooks';
 import store from '~/store';
@@ -12,7 +12,7 @@ export default function AutoTranscribeAudioSwitch({
   const [autoTranscribeAudio, setAutoTranscribeAudio] = useRecoilState<boolean>(
     store.autoTranscribeAudio,
   );
-  const speechToText = useRecoilValue(store.speechToText);
+  const speechToText = useRecoilState<boolean>(store.speechToText);
 
   const handleCheckedChange = (value: boolean) => {
     setAutoTranscribeAudio(value);

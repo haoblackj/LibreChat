@@ -4,9 +4,8 @@ import useSpeechToTextExternal from './useSpeechToTextExternal';
 import useGetAudioSettings from './useGetAudioSettings';
 
 const useSpeechToText = (handleTranscriptionComplete: (text: string) => void) => {
-  const { speechToTextEndpoint } = useGetAudioSettings();
+  const { externalSpeechToText } = useGetAudioSettings();
   const [animatedText, setAnimatedText] = useState('');
-  const externalSpeechToText = speechToTextEndpoint === 'external';
 
   const {
     isListening: speechIsListeningBrowser,

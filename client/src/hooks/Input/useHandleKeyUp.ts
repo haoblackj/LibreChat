@@ -1,5 +1,5 @@
+import { useSetRecoilState } from 'recoil';
 import { useCallback, useMemo } from 'react';
-import { useSetRecoilState, useRecoilValue } from 'recoil';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import type { SetterOrUpdater } from 'recoil';
 import useHasAccess from '~/hooks/Roles/useHasAccess';
@@ -20,16 +20,20 @@ const shouldTriggerCommand = (
   commandChar: string,
 ) => {
   const text = textAreaRef.current?.value;
-  if (typeof text !== 'string' || text.length === 0 || text[0] !== commandChar) {
+  if (!(text && text[text.length - 1] === commandChar)) {
     return false;
   }
 
   const startPos = textAreaRef.current?.selectionStart;
-  if (typeof startPos !== 'number') {
+  if (!startPos) {
     return false;
   }
 
-  return startPos === 1;
+  const isAtStart = startPos === 1;
+  const isPrecededBySpace = textAreaRef.current?.value.charAt(startPos - 2) === ' ';
+
+  const shouldTrigger = isAtStart || isPrecededBySpace;
+  return shouldTrigger;
 };
 
 /**
@@ -51,32 +55,26 @@ const useHandleKeyUp = ({
     permission: Permissions.USE,
   });
   const setShowPromptsPopover = useSetRecoilState(store.showPromptsPopoverFamily(index));
-
-  // Get the current state of command toggles
-  const atCommandEnabled = useRecoilValue(store.atCommand);
-  const plusCommandEnabled = useRecoilValue(store.plusCommand);
-  const slashCommandEnabled = useRecoilValue(store.slashCommand);
-
   const handleAtCommand = useCallback(() => {
-    if (atCommandEnabled && shouldTriggerCommand(textAreaRef, '@')) {
+    if (shouldTriggerCommand(textAreaRef, '@')) {
       setShowMentionPopover(true);
     }
-  }, [textAreaRef, setShowMentionPopover, atCommandEnabled]);
+  }, [textAreaRef, setShowMentionPopover]);
 
   const handlePlusCommand = useCallback(() => {
-    if (plusCommandEnabled && shouldTriggerCommand(textAreaRef, '+')) {
+    if (shouldTriggerCommand(textAreaRef, '+')) {
       setShowPlusPopover(true);
     }
-  }, [textAreaRef, setShowPlusPopover, plusCommandEnabled]);
+  }, [textAreaRef, setShowPlusPopover]);
 
   const handlePromptsCommand = useCallback(() => {
-    if (!hasAccess || !slashCommandEnabled) {
+    if (!hasAccess) {
       return;
     }
     if (shouldTriggerCommand(textAreaRef, '/')) {
       setShowPromptsPopover(true);
     }
-  }, [textAreaRef, hasAccess, setShowPromptsPopover, slashCommandEnabled]);
+  }, [textAreaRef, hasAccess, setShowPromptsPopover]);
 
   const commandHandlers = useMemo(
     () => ({
@@ -93,18 +91,18 @@ const useHandleKeyUp = ({
   const handleKeyUp = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       const text = textAreaRef.current?.value;
-      if (typeof text !== 'string' || text.length === 0) {
+      if (!text) {
         return;
       }
 
-      if (invalidKeys[event.key as keyof typeof invalidKeys]) {
+      if (invalidKeys[event.key]) {
         return;
       }
 
-      const firstChar = text[0];
-      const handler = commandHandlers[firstChar as keyof typeof commandHandlers];
+      const lastChar = text[text.length - 1];
+      const handler = commandHandlers[lastChar];
 
-      if (typeof handler === 'function') {
+      if (handler) {
         handler();
       }
     },

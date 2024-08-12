@@ -6,6 +6,9 @@ module.exports = {
   // darkMode: 'class',
   darkMode: ['class'],
   theme: {
+    // colors: {
+    //   'gpt-dark-gray': '#171717',
+    // },
     fontFamily: {
       sans: ['Inter', 'sans-serif'],
       mono: ['Roboto Mono', 'monospace'],
@@ -65,12 +68,6 @@ module.exports = {
         'text-secondary': 'var(--text-secondary)',
         'text-secondary-alt': 'var(--text-secondary-alt)',
         'text-tertiary': 'var(--text-tertiary)',
-        'ring-primary': 'var(--ring-primary)',
-        'header-primary': 'var(--header-primary)',
-        'header-hover': 'var(--header-hover)',
-        'header-button-hover': 'var(--header-button-hover)',
-        'surface-active': 'var(--surface-active)',
-        'surface-hover': 'var(--surface-hover)',
         'surface-primary': 'var(--surface-primary)',
         'surface-primary-alt': 'var(--surface-primary-alt)',
         'surface-primary-contrast': 'var(--surface-primary-contrast)',
@@ -80,8 +77,8 @@ module.exports = {
         'border-light': 'var(--border-light)',
         'border-medium': 'var(--border-medium)',
         'border-medium-alt': 'var(--border-medium-alt)',
-        'border-heavy': 'var(--border-heavy)',
-        'border-xheavy': 'var(--border-xheavy)',
+        'border-heavy': 'var(--gray-300)',
+        'border-xheavy': 'var(--gray-400',
       },
     },
   },

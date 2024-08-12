@@ -22,15 +22,14 @@ export default function MenuButton({
   const localize = useLocalize();
   return (
     <Trigger asChild>
-      <button
+      <div
         className={cn(
           'group flex cursor-pointer items-center gap-1 rounded-xl px-3 py-2 text-lg font-medium hover:bg-gray-50 radix-state-open:bg-gray-50 dark:hover:bg-gray-700 dark:radix-state-open:bg-gray-700',
           className,
         )}
-        type="button"
-        aria-label={`Select ${primaryText}`}
+        // type="button"
       >
-        {selected && selected.showIconInHeader === true && (
+        {selected && selected.showIconInHeader && (
           <SpecIcon currentSpec={selected} endpointsConfig={endpointsConfig} />
         )}
         <div className={textClassName}>
@@ -52,7 +51,7 @@ export default function MenuButton({
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </div>
     </Trigger>
   );
 }

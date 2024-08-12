@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import {
-  OGDialog,
+  Dialog,
   Tooltip,
-  OGDialogTrigger,
+  DialogTrigger,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
 } from '~/components/ui';
 import { Share2Icon } from 'lucide-react';
 import type { TSharedLink } from 'librechat-data-provider';
-import OGDialogTemplate from '~/components/ui/OGDialogTemplate';
+import DialogTemplate from '~/components/ui/DialogTemplate';
 import SharedLinkButton from './SharedLinkButton';
 import ShareDialog from './ShareDialog';
 import { useLocalize } from '~/hooks';
@@ -78,8 +78,8 @@ export default function ShareButton({
     setOpen(open);
   };
   return (
-    <OGDialog open={open} onOpenChange={onOpenChange}>
-      <OGDialogTrigger asChild>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
         <button
           className={cn(
             'group m-1.5 flex w-full cursor-pointer items-center gap-2 rounded p-2.5 text-sm hover:bg-gray-200 focus-visible:bg-gray-200 focus-visible:outline-0 radix-disabled:pointer-events-none radix-disabled:opacity-50 dark:hover:bg-gray-600 dark:focus-visible:bg-gray-600',
@@ -88,8 +88,8 @@ export default function ShareButton({
         >
           {renderShareButton()}
         </button>
-      </OGDialogTrigger>
-      <OGDialogTemplate
+      </DialogTrigger>
+      <DialogTemplate
         buttons={buttons}
         showCloseButton={true}
         showCancelButton={false}
@@ -108,6 +108,6 @@ export default function ShareButton({
           </>
         }
       />
-    </OGDialog>
+    </Dialog>
   );
 }

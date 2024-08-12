@@ -100,7 +100,7 @@ export default function AssistantPanel({
       const error = err as Error;
       showToast({
         message: `${localize('com_assistants_update_error')}${
-          error.message ? ` ${localize('com_ui_error')}: ${error.message}` : ''
+          error?.message ? ` ${localize('com_ui_error')}: ${error?.message}` : ''
         }`,
         status: 'error',
       });
@@ -119,7 +119,7 @@ export default function AssistantPanel({
       const error = err as Error;
       showToast({
         message: `${localize('com_assistants_create_error')}${
-          error.message ? ` ${localize('com_ui_error')}: ${error.message}` : ''
+          error?.message ? ` ${localize('com_ui_error')}: ${error?.message}` : ''
         }`,
         status: 'error',
       });
@@ -139,7 +139,7 @@ export default function AssistantPanel({
         return functionName;
       } else {
         const assistant = assistantMap?.[endpoint]?.[assistant_id];
-        const tool = assistant?.tools.find((tool) => tool.function?.name === functionName);
+        const tool = assistant?.tools?.find((tool) => tool.function?.name === functionName);
         if (assistant && tool) {
           return tool;
         }
@@ -193,16 +193,6 @@ export default function AssistantPanel({
     });
   };
 
-  let submitContext: string | JSX.Element;
-
-  if (create.isLoading || update.isLoading) {
-    submitContext = <Spinner className="icon-md" />;
-  } else if (assistant_id) {
-    submitContext = localize('com_ui_save');
-  } else {
-    submitContext = localize('com_ui_create');
-  }
-
   return (
     <FormProvider {...methods}>
       <form
@@ -245,7 +235,7 @@ export default function AssistantPanel({
             <AssistantAvatar
               createMutation={create}
               assistant_id={assistant_id ?? null}
-              metadata={assistant['metadata'] ?? null}
+              metadata={assistant?.['metadata'] ?? null}
               endpoint={endpoint}
               version={version}
             />
@@ -435,7 +425,13 @@ export default function AssistantPanel({
               className="btn btn-primary focus:shadow-outline flex w-full items-center justify-center px-4 py-2 font-semibold text-white hover:bg-green-600 focus:border-green-500"
               type="submit"
             >
-              {submitContext}
+              {create.isLoading || update.isLoading ? (
+                <Spinner className="icon-md" />
+              ) : assistant_id ? (
+                localize('com_ui_save')
+              ) : (
+                localize('com_ui_create')
+              )}
             </button>
           </div>
         </div>

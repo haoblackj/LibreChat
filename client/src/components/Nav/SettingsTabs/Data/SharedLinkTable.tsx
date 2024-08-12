@@ -49,9 +49,9 @@ function SharedLinkDeleteButton({
     <TooltipProvider delayDuration={250}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button id="delete-shared-link" aria-label="Delete shared link" onClick={handleDelete}>
+          <span onClick={handleDelete}>
             <TrashIcon />
-          </button>
+          </span>
         </TooltipTrigger>
         <TooltipContent side="top" sideOffset={0}>
           {localize('com_ui_delete')}

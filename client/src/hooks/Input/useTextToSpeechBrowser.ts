@@ -2,11 +2,6 @@ import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import store from '~/store';
 
-interface VoiceOption {
-  value: string;
-  display: string;
-}
-
 function useTextToSpeechBrowser() {
   const [cloudBrowserVoices] = useRecoilState(store.cloudBrowserVoices);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -37,30 +32,7 @@ function useTextToSpeechBrowser() {
     setIsSpeaking(false);
   };
 
-  const voices = (): Promise<VoiceOption[]> => {
-    return new Promise((resolve) => {
-      const getAndMapVoices = () => {
-        const availableVoices = speechSynthesis
-          .getVoices()
-          .filter((v) => cloudBrowserVoices || v.localService === true);
-
-        const voiceOptions: VoiceOption[] = availableVoices.map((v) => ({
-          value: v.name,
-          display: v.name,
-        }));
-
-        resolve(voiceOptions);
-      };
-
-      if (speechSynthesis.getVoices().length) {
-        getAndMapVoices();
-      } else {
-        speechSynthesis.onvoiceschanged = getAndMapVoices;
-      }
-    });
-  };
-
-  return { generateSpeechLocal, cancelSpeechLocal, isSpeaking, voices };
+  return { generateSpeechLocal, cancelSpeechLocal, isSpeaking };
 }
 
 export default useTextToSpeechBrowser;

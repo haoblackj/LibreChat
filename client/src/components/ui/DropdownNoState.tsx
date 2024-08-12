@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import {
   Listbox,
   ListboxButton,
@@ -15,9 +15,9 @@ type OptionType = {
 };
 
 interface DropdownProps {
-  value: string | OptionType;
+  value: string;
   label?: string;
-  onChange: (value: string) => void | ((value: OptionType) => void);
+  onChange: (value: string) => void;
   options: (string | OptionType)[];
   className?: string;
   anchor?: AnchorPropsWithSelection;
@@ -35,19 +35,14 @@ const Dropdown: FC<DropdownProps> = ({
   sizeClasses,
   testId = 'dropdown-menu',
 }) => {
-  const getValue = (option: string | OptionType): string =>
-    typeof option === 'string' ? option : option.value;
-
-  const getDisplay = (option: string | OptionType): string =>
-    typeof option === 'string' ? option : (option.display ?? '') || option.value;
-
-  const selectedOption = options.find((option) => getValue(option) === getValue(value));
-
-  const displayValue = selectedOption != null ? getDisplay(selectedOption) : getDisplay(value);
-
   return (
     <div className={cn('relative', className)}>
-      <Listbox value={value} onChange={onChange}>
+      <Listbox
+        value={value}
+        onChange={(newValue) => {
+          onChange(newValue);
+        }}
+      >
         <div className={cn('relative', className)}>
           <ListboxButton
             data-testid={testId}
@@ -60,7 +55,9 @@ const Dropdown: FC<DropdownProps> = ({
           >
             <span className="block truncate">
               {label}
-              {displayValue}
+              {options
+                .map((o) => (typeof o === 'string' ? { value: o, display: o } : o))
+                .find((o) => o.value === value)?.display || value}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <svg
@@ -82,7 +79,7 @@ const Dropdown: FC<DropdownProps> = ({
           >
             <ListboxOptions
               className={cn(
-                'absolute z-50 mt-1 flex flex-col items-start gap-1 overflow-auto rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 shadow-lg transition-opacity focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+                'absolute z-50 mt-1 flex flex-col items-start gap-1 overflow-auto rounded-lg border border-gray-300 bg-white bg-white p-1.5 text-gray-700 shadow-lg transition-opacity focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white',
                 sizeClasses,
                 className,
               )}
@@ -92,15 +89,17 @@ const Dropdown: FC<DropdownProps> = ({
               {options.map((item, index) => (
                 <ListboxOption
                   key={index}
-                  value={item}
+                  value={typeof item === 'string' ? item : item.value}
                   className={cn(
                     'relative cursor-pointer select-none rounded border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600',
                   )}
                   style={{ width: '100%' }}
-                  data-theme={getValue(item)}
+                  data-theme={typeof item === 'string' ? item : (item as OptionType).value}
                 >
                   <div className="flex w-full items-center justify-between">
-                    <span className="block truncate">{getDisplay(item)}</span>
+                    <span className="block truncate">
+                      {typeof item === 'string' ? item : (item as OptionType).display}
+                    </span>
                   </div>
                 </ListboxOption>
               ))}

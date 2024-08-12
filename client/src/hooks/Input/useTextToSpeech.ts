@@ -3,67 +3,30 @@ import { parseTextParts } from 'librechat-data-provider';
 import type { TMessage } from 'librechat-data-provider';
 import useTextToSpeechExternal from './useTextToSpeechExternal';
 import useTextToSpeechBrowser from './useTextToSpeechBrowser';
-import useGetAudioSettings from './useGetAudioSettings';
-import useTextToSpeechEdge from './useTextToSpeechEdge';
 import { usePauseGlobalAudio } from '../Audio';
+import useGetAudioSettings from './useGetAudioSettings';
 
-const useTextToSpeech = (message?: TMessage, isLast = false, index = 0) => {
-  const { textToSpeechEndpoint } = useGetAudioSettings();
-  const { pauseGlobalAudio } = usePauseGlobalAudio(index);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+const useTextToSpeech = (message: TMessage, isLast: boolean, index = 0) => {
+  const { externalTextToSpeech } = useGetAudioSettings();
 
   const {
-    generateSpeechLocal,
-    cancelSpeechLocal,
+    generateSpeechLocal: generateSpeechLocal,
+    cancelSpeechLocal: cancelSpeechLocal,
     isSpeaking: isSpeakingLocal,
-    voices: voicesLocal,
   } = useTextToSpeechBrowser();
 
   const {
-    generateSpeechEdge,
-    cancelSpeechEdge,
-    isSpeaking: isSpeakingEdge,
-    voices: voicesEdge,
-  } = useTextToSpeechEdge();
-
-  const {
-    generateSpeechExternal,
+    generateSpeechExternal: generateSpeechExternal,
     cancelSpeech: cancelSpeechExternal,
     isSpeaking: isSpeakingExternal,
-    isLoading: isLoadingExternal,
-    audioRef: audioRefExternal,
-    voices: voicesExternal,
-  } = useTextToSpeechExternal(message?.messageId || '', isLast, index);
+    isLoading: isLoading,
+    audioRef,
+  } = useTextToSpeechExternal(message.messageId, isLast, index);
+  const { pauseGlobalAudio } = usePauseGlobalAudio(index);
 
-  let generateSpeech, cancelSpeech, isSpeaking, isLoading, voices;
-
-  switch (textToSpeechEndpoint) {
-    case 'external':
-      generateSpeech = generateSpeechExternal;
-      cancelSpeech = cancelSpeechExternal;
-      isSpeaking = isSpeakingExternal;
-      isLoading = isLoadingExternal;
-      if (audioRefExternal) {
-        audioRef.current = audioRefExternal.current;
-      }
-      voices = voicesExternal;
-      break;
-    case 'edge':
-      generateSpeech = generateSpeechEdge;
-      cancelSpeech = cancelSpeechEdge;
-      isSpeaking = isSpeakingEdge;
-      isLoading = false;
-      voices = voicesEdge;
-      break;
-    case 'browser':
-    default:
-      generateSpeech = generateSpeechLocal;
-      cancelSpeech = cancelSpeechLocal;
-      isSpeaking = isSpeakingLocal;
-      isLoading = false;
-      voices = voicesLocal;
-      break;
-  }
+  const generateSpeech = externalTextToSpeech ? generateSpeechExternal : generateSpeechLocal;
+  const cancelSpeech = externalTextToSpeech ? cancelSpeechExternal : cancelSpeechLocal;
+  const isSpeaking = externalTextToSpeech ? isSpeakingExternal : isSpeakingLocal;
 
   const isMouseDownRef = useRef(false);
   const timerRef = useRef<number | undefined>(undefined);
@@ -89,6 +52,7 @@ const useTextToSpeech = (message?: TMessage, isLast = false, index = 0) => {
 
   const toggleSpeech = () => {
     if (isSpeaking) {
+      console.log('canceling message audio speech');
       cancelSpeech();
       pauseGlobalAudio();
     } else {
@@ -105,7 +69,6 @@ const useTextToSpeech = (message?: TMessage, isLast = false, index = 0) => {
     toggleSpeech,
     isSpeaking,
     isLoading,
-    voices,
     audioRef,
   };
 };

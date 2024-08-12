@@ -1,6 +1,6 @@
 const { TTSProviders } = require('librechat-data-provider');
 const getCustomConfig = require('~/server/services/Config/getCustomConfig');
-const { getProvider } = require('./TTSService');
+const { getProvider } = require('./textToSpeech');
 
 /**
  * This function retrieves the available voices for the current TTS provider
@@ -21,7 +21,7 @@ async function getVoices(req, res) {
     }
 
     const ttsSchema = customConfig?.speech?.tts;
-    const provider = await getProvider(ttsSchema);
+    const provider = getProvider(ttsSchema);
     let voices;
 
     switch (provider) {

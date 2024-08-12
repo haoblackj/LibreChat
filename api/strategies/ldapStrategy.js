@@ -1,7 +1,6 @@
 const fs = require('fs');
 const LdapStrategy = require('passport-ldapauth');
 const { findUser, createUser, updateUser } = require('~/models/userMethods');
-const { isEnabled } = require('~/server/utils');
 const logger = require('~/utils/logger');
 
 const {
@@ -14,7 +13,6 @@ const {
   LDAP_FULL_NAME,
   LDAP_ID,
   LDAP_USERNAME,
-  LDAP_TLS_REJECT_UNAUTHORIZED,
 } = process.env;
 
 // Check required environment variables
@@ -43,7 +41,6 @@ if (LDAP_ID) {
 if (LDAP_USERNAME) {
   searchAttributes.push(LDAP_USERNAME);
 }
-const rejectUnauthorized = isEnabled(LDAP_TLS_REJECT_UNAUTHORIZED);
 
 const ldapOptions = {
   server: {
@@ -55,7 +52,6 @@ const ldapOptions = {
     searchAttributes: [...new Set(searchAttributes)],
     ...(LDAP_CA_CERT_PATH && {
       tlsOptions: {
-        rejectUnauthorized,
         ca: (() => {
           try {
             return [fs.readFileSync(LDAP_CA_CERT_PATH)];

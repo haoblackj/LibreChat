@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Constants, EModelEndpoint } from 'librechat-data-provider';
+import { EModelEndpoint } from 'librechat-data-provider';
 import {
   useGetModelsQuery,
   useGetStartupConfig,
@@ -8,15 +8,14 @@ import {
 } from 'librechat-data-provider/react-query';
 import type { TPreset } from 'librechat-data-provider';
 import { useNewConvo, useAppStartup, useAssistantListMap } from '~/hooks';
-import { useGetConvoIdQuery, useHealthCheck } from '~/data-provider';
 import { getDefaultModelSpec, getModelSpecIconURL } from '~/utils';
+import { useGetConvoIdQuery } from '~/data-provider';
 import ChatView from '~/components/Chat/ChatView';
 import useAuthRedirect from './useAuthRedirect';
 import { Spinner } from '~/components/svg';
 import store from '~/store';
 
 export default function ChatRoute() {
-  useHealthCheck();
   const { data: startupConfig } = useGetStartupConfig();
   const { isAuthenticated, user } = useAuthRedirect();
   useAppStartup({ startupConfig, user });
@@ -33,7 +32,7 @@ export default function ChatRoute() {
     refetchOnMount: 'always',
   });
   const initialConvoQuery = useGetConvoIdQuery(conversationId ?? '', {
-    enabled: isAuthenticated && conversationId !== Constants.NEW_CONVO,
+    enabled: isAuthenticated && conversationId !== 'new',
   });
   const endpointsQuery = useGetEndpointsQuery({ enabled: isAuthenticated });
   const assistantListMap = useAssistantListMap();
@@ -46,7 +45,7 @@ export default function ChatRoute() {
       return;
     }
 
-    if (conversationId === Constants.NEW_CONVO && endpointsQuery.data && modelsQuery.data) {
+    if (conversationId === 'new' && endpointsQuery.data && modelsQuery.data) {
       const spec = getDefaultModelSpec(startupConfig.modelSpecs?.list);
 
       newConversation({
@@ -74,7 +73,7 @@ export default function ChatRoute() {
       });
       hasSetConversation.current = true;
     } else if (
-      conversationId === Constants.NEW_CONVO &&
+      conversationId === 'new' &&
       assistantListMap[EModelEndpoint.assistants] &&
       assistantListMap[EModelEndpoint.azureAssistants]
     ) {
@@ -116,11 +115,7 @@ export default function ChatRoute() {
   ]);
 
   if (endpointsQuery.isLoading || modelsQuery.isLoading) {
-    return (
-      <div aria-live="polite" role="status">
-        <Spinner className="m-auto text-black dark:text-white" />
-      </div>
-    );
+    return <Spinner className="m-auto text-black dark:text-white" />;
   }
 
   if (!isAuthenticated) {

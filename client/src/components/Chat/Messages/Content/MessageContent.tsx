@@ -1,10 +1,9 @@
-import { Fragment, Suspense, useMemo } from 'react';
+import { Fragment, Suspense } from 'react';
 import type { TMessage, TResPlugin } from 'librechat-data-provider';
 import type { TMessageContentProps, TDisplayProps } from '~/common';
 import Plugin from '~/components/Messages/Content/Plugin';
 import Error from '~/components/Messages/Content/Error';
 import { DelayedRender } from '~/components/ui';
-import { useChatContext } from '~/Providers';
 import EditMessage from './EditMessage';
 import { useLocalize } from '~/hooks';
 import Container from './Container';
@@ -64,31 +63,17 @@ export const ErrorMessage = ({
 
 // Display Message Component
 const DisplayMessage = ({ text, isCreatedByUser, message, showCursor }: TDisplayProps) => {
-  const { isSubmitting, latestMessage } = useChatContext();
-  const showCursorState = useMemo(
-    () => showCursor === true && isSubmitting,
-    [showCursor, isSubmitting],
-  );
-  const isLatestMessage = useMemo(
-    () => message.messageId === latestMessage?.messageId,
-    [message.messageId, latestMessage?.messageId],
-  );
   return (
     <Container message={message}>
       <div
         className={cn(
-          showCursorState && !!text.length ? 'result-streaming' : '',
-          'markdown prose message-content dark:prose-invert light w-full break-words',
+          showCursor && !!text?.length ? 'result-streaming' : '',
+          'markdown prose dark:prose-invert light w-full break-words',
           isCreatedByUser ? 'whitespace-pre-wrap dark:text-gray-20' : 'dark:text-gray-100',
         )}
       >
         {!isCreatedByUser ? (
-          <Markdown
-            content={text}
-            isEdited={message.isEdited}
-            showCursor={showCursorState}
-            isLatestMessage={isLatestMessage}
-          />
+          <Markdown content={text} message={message} showCursor={showCursor} />
         ) : (
           <>{text}</>
         )}

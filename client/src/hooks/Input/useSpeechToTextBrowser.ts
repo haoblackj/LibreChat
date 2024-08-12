@@ -9,8 +9,7 @@ const useSpeechToTextBrowser = () => {
   const { showToast } = useToastContext();
   const [languageSTT] = useRecoilState<string>(store.languageSTT);
   const [autoTranscribeAudio] = useRecoilState<boolean>(store.autoTranscribeAudio);
-  const { speechToTextEndpoint } = useGetAudioSettings();
-  const isBrowserSTTEnabled = speechToTextEndpoint === 'browser';
+  const { externalSpeechToText } = useGetAudioSettings();
   const [isListening, setIsListening] = useState(false);
 
   const {
@@ -52,7 +51,7 @@ const useSpeechToTextBrowser = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.altKey && e.code === 'KeyL' && !isBrowserSTTEnabled) {
+      if (e.shiftKey && e.altKey && e.code === 'KeyL' && !externalSpeechToText) {
         toggleListening();
       }
     };

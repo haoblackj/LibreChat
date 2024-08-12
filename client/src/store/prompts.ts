@@ -1,6 +1,10 @@
 import { atom } from 'recoil';
 import { atomWithLocalStorage } from '~/store/utils';
-import { PromptsEditorMode } from '~/common';
+
+enum PromptsEditorMode {
+  SIMPLE = 'simple',
+  ADVANCED = 'advanced',
+}
 
 // Static atoms without localStorage
 const staticAtoms = {
@@ -19,10 +23,7 @@ const localStorageAtoms = {
   autoSendPrompts: atomWithLocalStorage('autoSendPrompts', true),
   alwaysMakeProd: atomWithLocalStorage('alwaysMakeProd', true),
   // Editor mode
-  promptsEditorMode: atomWithLocalStorage<PromptsEditorMode>(
-    'promptsEditorMode',
-    PromptsEditorMode.SIMPLE,
-  ),
+  promptsEditorMode: atomWithLocalStorage<string>('promptsEditorMode', PromptsEditorMode.SIMPLE),
 };
 
-export default { ...staticAtoms, ...localStorageAtoms };
+export default { ...staticAtoms, ...localStorageAtoms, PromptsEditorMode };

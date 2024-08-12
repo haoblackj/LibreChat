@@ -62,24 +62,24 @@ export default function Presentation({
 
   const defaultLayout = useMemo(() => {
     const resizableLayout = localStorage.getItem('react-resizable-panels:layout');
-    return typeof resizableLayout === 'string' ? JSON.parse(resizableLayout) : undefined;
+    return resizableLayout ? JSON.parse(resizableLayout) : undefined;
   }, []);
   const defaultCollapsed = useMemo(() => {
     const collapsedPanels = localStorage.getItem('react-resizable-panels:collapsed');
-    return typeof collapsedPanels === 'string' ? JSON.parse(collapsedPanels) : true;
+    return collapsedPanels ? JSON.parse(collapsedPanels) : undefined;
   }, []);
   const fullCollapse = useMemo(() => localStorage.getItem('fullPanelCollapse') === 'true', []);
 
   const layout = () => (
     <div className="transition-width relative flex h-full w-full flex-1 flex-col items-stretch overflow-hidden bg-white pt-0 dark:bg-gray-800">
-      <div className="flex h-full flex-col" role="presentation">
+      <div className="flex h-full flex-col" role="presentation" tabIndex={0}>
         {children}
         {isActive && <DragDropOverlay />}
       </div>
     </div>
   );
 
-  if (useSidePanel && !hideSidePanel && interfaceConfig.sidePanel === true) {
+  if (useSidePanel && !hideSidePanel && interfaceConfig.sidePanel) {
     return (
       <div
         ref={drop}
@@ -90,10 +90,10 @@ export default function Presentation({
           defaultCollapsed={defaultCollapsed}
           fullPanelCollapse={fullCollapse}
         >
-          <main className="flex h-full flex-col" role="main">
+          <div className="flex h-full flex-col" role="presentation" tabIndex={0}>
             {children}
             {isActive && <DragDropOverlay />}
-          </main>
+          </div>
         </SidePanel>
       </div>
     );

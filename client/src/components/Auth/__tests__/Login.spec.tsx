@@ -21,9 +21,7 @@ const mockStartupConfig = {
     openidLoginEnabled: true,
     openidLabel: 'Test OpenID',
     openidImageUrl: 'http://test-server.com',
-    ldap: {
-      enabled: false,
-    },
+    ldapLoginEnabled: false,
     registrationEnabled: true,
     emailLoginEnabled: true,
     socialLoginEnabled: true,
