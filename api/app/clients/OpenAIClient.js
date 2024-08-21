@@ -6,6 +6,7 @@ const {
   ImageDetail,
   EModelEndpoint,
   resolveHeaders,
+  openAISettings,
   ImageDetailCost,
   CohereConstants,
   getResponseSender,
@@ -27,9 +28,9 @@ const {
   createContextHandlers,
 } = require('./prompts');
 const { encodeAndFormat } = require('~/server/services/Files/images/encode');
+const { spendTokens } = require('~/models/spendTokens');
 const { isEnabled, sleep } = require('~/server/utils');
 const { handleOpenAIErrors } = require('./tools/util');
-const spendTokens = require('~/models/spendTokens');
 const { createLLM, RunManager } = require('./llm');
 const ChatGPTClient = require('./ChatGPTClient');
 const { summaryBuffer } = require('./memory');
@@ -85,26 +86,13 @@ class OpenAIClient extends BaseClient {
       this.apiKey = this.options.openaiApiKey;
     }
 
-    const modelOptions = this.options.modelOptions || {};
-
-    if (!this.modelOptions) {
-      this.modelOptions = {
-        ...modelOptions,
-        model: modelOptions.model || 'gpt-3.5-turbo',
-        temperature:
-          typeof modelOptions.temperature === 'undefined' ? 0.8 : modelOptions.temperature,
-        top_p: typeof modelOptions.top_p === 'undefined' ? 1 : modelOptions.top_p,
-        presence_penalty:
-          typeof modelOptions.presence_penalty === 'undefined' ? 1 : modelOptions.presence_penalty,
-        stop: modelOptions.stop,
-      };
-    } else {
-      // Update the modelOptions if it already exists
-      this.modelOptions = {
-        ...this.modelOptions,
-        ...modelOptions,
-      };
-    }
+    this.modelOptions = Object.assign(
+      {
+        model: openAISettings.model.default,
+      },
+      this.modelOptions,
+      this.options.modelOptions,
+    );
 
     this.defaultVisionModel = this.options.visionModel ?? 'gpt-4-vision-preview';
     if (typeof this.options.attachments?.then === 'function') {
@@ -827,7 +815,7 @@ class OpenAIClient extends BaseClient {
 
       const instructionsPayload = [
         {
-          role: this.options.titleMessageRole ?? 'system',
+          role: this.options.titleMessageRole ?? (this.isOllama ? 'user' : 'system'),
           content: `Please generate ${titleInstruction}
 
 ${convo}
@@ -1262,14 +1250,23 @@ ${convo}
         throw new Error('Chat completion failed');
       }
 
-      const { message, finish_reason } = chatCompletion.choices[0];
-      if (chatCompletion) {
-        this.metadata = { finish_reason };
+      const { choices } = chatCompletion;
+      if (!Array.isArray(choices) || choices.length === 0) {
+        logger.warn('[OpenAIClient] Chat completion response has no choices');
+        return intermediateReply;
       }
+
+      const { message, finish_reason } = choices[0] ?? {};
+      this.metadata = { finish_reason };
 
       logger.debug('[OpenAIClient] chatCompletion response', chatCompletion);
 
-      if (!message?.content?.trim() && intermediateReply.length) {
+      if (!message) {
+        logger.warn('[OpenAIClient] Message is undefined in chatCompletion response');
+        return intermediateReply;
+      }
+
+      if (typeof message.content !== 'string' || message.content.trim() === '') {
         logger.debug(
           '[OpenAIClient] chatCompletion: using intermediateReply due to empty message.content',
           { intermediateReply },

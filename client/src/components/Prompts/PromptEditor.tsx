@@ -1,12 +1,22 @@
 import { useMemo, memo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { EditIcon } from 'lucide-react';
+import type { PluggableList } from 'unified';
+import rehypeHighlight from 'rehype-highlight';
 import { Controller, useFormContext, useFormState } from 'react-hook-form';
+import remarkGfm from 'remark-gfm';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
+import supersub from 'remark-supersub';
+import ReactMarkdown from 'react-markdown';
 import AlwaysMakeProd from '~/components/Prompts/Groups/AlwaysMakeProd';
+import { code } from '~/components/Chat/Messages/Content/Markdown';
 import { SaveIcon, CrossIcon } from '~/components/svg';
 import { TextareaAutosize } from '~/components/ui';
+import { PromptVariableGfm } from './Markdown';
+import { PromptsEditorMode } from '~/common';
+import { cn, langSubset } from '~/utils';
 import { useLocalize } from '~/hooks';
-import { cn } from '~/utils';
 import store from '~/store';
 
 const { PromptsEditorMode, promptsEditorMode } = store;
@@ -30,6 +40,18 @@ const PromptEditor: React.FC<Props> = ({ name, isEditing, setIsEditing }) => {
     return isEditing ? SaveIcon : EditIcon;
   }, [isEditing, dirtyFields.prompt]);
 
+  const rehypePlugins: PluggableList = [
+    [rehypeKatex, { output: 'mathml' }],
+    [
+      rehypeHighlight,
+      {
+        detect: true,
+        ignoreMissing: true,
+        subset: langSubset,
+      },
+    ],
+  ];
+
   return (
     <div>
       <h2 className="flex items-center justify-between rounded-t-lg border border-gray-300 py-2 pl-4 text-base font-semibold dark:border-gray-600 dark:text-gray-200">
@@ -42,7 +64,7 @@ const PromptEditor: React.FC<Props> = ({ name, isEditing, setIsEditing }) => {
             <EditorIcon
               className={cn(
                 'icon-lg',
-                isEditing ? 'p-[0.05rem]' : 'text-gray-400 hover:text-gray-600',
+                isEditing ? 'p-[0.05rem]' : 'text-secondary-alt hover:text-text-primary',
               )}
             />
           </button>
@@ -50,8 +72,8 @@ const PromptEditor: React.FC<Props> = ({ name, isEditing, setIsEditing }) => {
       </h2>
       <div
         className={cn(
-          'group relative min-h-32 rounded-b-lg border border-gray-300 p-4 transition-all duration-150 hover:opacity-90 dark:border-gray-600',
-          { 'cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-100/10': !isEditing },
+          'min-h-[8rem] w-full rounded-b-lg border border-border-medium p-4 transition-all duration-150',
+          { 'bg-surface-secondary-alt cursor-pointer hover:bg-surface-tertiary': !isEditing },
         )}
         onClick={() => !isEditing && setIsEditing(true)}
       >
@@ -70,7 +92,14 @@ const PromptEditor: React.FC<Props> = ({ name, isEditing, setIsEditing }) => {
                 onBlur={() => setIsEditing(false)}
               />
             ) : (
-              <span className="block break-words px-2 py-1 dark:text-gray-200">{field.value}</span>
+              <ReactMarkdown
+                remarkPlugins={[supersub, remarkGfm, [remarkMath, { singleDollarTextMath: true }]]}
+                rehypePlugins={rehypePlugins}
+                components={{ p: PromptVariableGfm, code }}
+                className="markdown prose dark:prose-invert light my-1 w-full break-words text-text-primary"
+              >
+                {field.value}
+              </ReactMarkdown>
             )
           }
         />

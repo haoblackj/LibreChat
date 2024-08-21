@@ -15,7 +15,7 @@ export type ConversationListParams = {
   before?: string | null;
   after?: string | null;
   order?: 'asc' | 'desc';
-  pageNumber: string; // Add this line
+  pageNumber: string;
   conversationId?: string;
   isArchived?: boolean;
 };

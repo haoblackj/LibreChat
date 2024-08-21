@@ -7,9 +7,7 @@ import rehypeKatex from 'rehype-katex';
 import { useRecoilValue } from 'recoil';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
-import type { TMessage } from 'librechat-data-provider';
-import type { PluggableList } from 'unified';
-import { cn, langSubset, validateIframe, processLaTeX } from '~/utils';
+import { cn, langSubset, validateIframe, processLaTeX, handleDoubleClick } from '~/utils';
 import CodeBlock from '~/components/Messages/Content/CodeBlock';
 import { useChatContext, useToastContext } from '~/Providers';
 import { useFileDownload } from '~/data-provider';
@@ -22,18 +20,16 @@ type TCodeProps = {
   children: React.ReactNode;
 };
 
-type TContentProps = {
-  content: string;
-  message: TMessage;
-  showCursor?: boolean;
-};
-
-export const code = memo(({ inline, className, children }: TCodeProps) => {
-  const match = /language-(\w+)/.exec(className || '');
+export const code: React.ElementType = memo(({ inline, className, children }: TCodeProps) => {
+  const match = /language-(\w+)/.exec(className ?? '');
   const lang = match && match[1];
 
   if (inline) {
-    return <code className={className}>{children}</code>;
+    return (
+      <code onDoubleClick={handleDoubleClick} className={className}>
+        {children}
+      </code>
+    );
   } else {
     return <CodeBlock lang={lang || 'text'} codeChildren={children} />;
   }
@@ -143,7 +139,7 @@ const Markdown = memo(({ content, message, showCursor }: TContentProps) => {
     return (
       <div className="absolute">
         <p className="relative">
-          <span className={cn(isSubmitting ? 'result-thinking' : '')} />
+          <span className={isLatestMessage ? 'result-thinking' : ''} />
         </p>
       </div>
     );

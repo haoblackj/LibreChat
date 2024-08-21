@@ -23,8 +23,9 @@ const DisplayMessage = ({ text, isCreatedByUser = false, message, showCursor }: 
   return (
     <div
       className={cn(
-        showCursor && !!text?.length ? 'result-streaming' : '',
-        'markdown prose dark:prose-invert light w-full break-words',
+        isSubmitting ? 'submitting' : '',
+        showCursorState && !!text.length ? 'result-streaming' : '',
+        'markdown prose message-content dark:prose-invert light w-full break-words',
         isCreatedByUser ? 'whitespace-pre-wrap dark:text-gray-20' : 'dark:text-gray-70',
       )}
     >
